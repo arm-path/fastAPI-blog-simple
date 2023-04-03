@@ -1,14 +1,9 @@
 from fastapi import FastAPI
 
-app = FastAPI()
+from models import users, articles
+from schemas import ResponseArticleListSchema, ArticleSchema, ResponseArticleDetail
 
-users = [
-    {'id': 1, 'first_name': 'Bob', 'age': 18},
-    {'id': 2, 'first_name': 'Jasica', 'age': 21},
-    {'id': 3, 'first_name': 'Alex', 'age': 30},
-    {'id': 4, 'first_name': 'Kate', 'age': 16},
-    {'id': 5, 'first_name': 'Adam', 'age': 17}
-]
+app = FastAPI()
 
 
 @app.get('/')
@@ -35,3 +30,19 @@ def change_user_age(user_id: int, age: int):
         return {'status': 404, 'data': 'page not found'}
     user[0]['age'] = age
     return {'status': 200, 'data': user[0]}
+
+
+@app.get('/articles/', response_model=ResponseArticleListSchema)
+def get_articles():
+    return {'status': 200, 'data': articles}
+
+
+@app.get('/article/{article_id}/')
+def get_article(article_id: int):
+    article = list(filter(lambda item: item.get('id') == article_id, articles))
+    return {'status': 200, 'data': article[0]} if article else {'status': 404, 'data': 'page not found'}
+
+
+@app.post('/article-create/', response_model=ResponseArticleDetail)
+def create_article(article: ArticleSchema):
+    return {'status': 200, 'data': article}
