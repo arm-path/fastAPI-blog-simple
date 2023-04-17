@@ -14,6 +14,8 @@ fastapi_users = FastAPIUsers[User, int](
     [auth_backend],
 )
 
+current_user = fastapi_users.current_user()
+
 router.include_router(
     fastapi_users.get_register_router(UserRead, UserCreate),
     prefix="/auth"
