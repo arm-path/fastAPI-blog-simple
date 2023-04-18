@@ -3,9 +3,9 @@ from typing import Optional
 from fastapi import Depends, Request
 from fastapi_users import BaseUserManager, IntegerIDMixin
 
-from src.user.models import User
-from src.user.utils import get_user_db
 from src.env import SECRET_USER_MANAGER
+from src.user.models import User
+from src.user.utils import get_user_db, token_encode
 
 
 class UserManager(IntegerIDMixin, BaseUserManager[User, id]):
@@ -13,6 +13,8 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, id]):
     verification_token_secret = SECRET_USER_MANAGER
 
     async def on_after_register(self, user: User, request: Optional[Request] = None):
+        token = token_encode(user)
+        print(token)
         print(f"User {user.id} has registered.")
 
     async def on_after_forgot_password(
