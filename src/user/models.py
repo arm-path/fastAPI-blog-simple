@@ -22,7 +22,7 @@ class User(SQLAlchemyBaseUserTable, Base):
     last_name: Mapped[str] = mapped_column(String(125), nullable=True)
     role_id: Mapped[int] = mapped_column(ForeignKey('role.id'))
     role: Mapped[Role] = relationship()
-    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     is_superuser: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     is_verified: Mapped[bool] = mapped_column(Boolean, default=True, nullable=True)
     registered: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)

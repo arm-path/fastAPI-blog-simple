@@ -6,6 +6,7 @@ from fastapi_users import BaseUserManager, IntegerIDMixin
 from src.env import SECRET_USER_MANAGER
 from src.user.models import User
 from src.user.utils import get_user_db, token_encode
+from src.tasks.task import send_massage
 
 
 class UserManager(IntegerIDMixin, BaseUserManager[User, id]):
@@ -14,7 +15,7 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, id]):
 
     async def on_after_register(self, user: User, request: Optional[Request] = None):
         token = token_encode(user)
-        print(token)
+        send_massage.delay(user.email, token)
         print(f"User {user.id} has registered.")
 
     async def on_after_forgot_password(

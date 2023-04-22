@@ -1,6 +1,7 @@
 from typing import Optional
 
 from fastapi_users.schemas import BaseUser, BaseUserCreate, BaseUserUpdate
+from pydantic import BaseModel
 from pydantic import EmailStr
 
 
@@ -34,3 +35,7 @@ class UserUpdate(BaseUserUpdate):
     is_active: Optional[bool]
     is_superuser: Optional[bool]
     is_verified: Optional[bool]
+
+
+class RoleCreate(BaseModel):
+    title: str
