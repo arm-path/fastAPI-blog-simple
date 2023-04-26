@@ -1,6 +1,7 @@
 import time
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from redis import asyncio as aioredis
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
@@ -21,6 +22,19 @@ async def index():
 
 app.include_router(user_router, prefix='/user')
 app.include_router(article_router)
+
+origins = [
+    'http://localhost',
+    'http://localhost:3030'
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=['*'],
+    allow_headers=['*']
+)
 
 
 @app.on_event('startup')
