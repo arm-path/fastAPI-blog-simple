@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %} List of articles {% endblock %}
+
+{% block script %}
+<script>
+    let searchArticles = () => {
+        let textSearch = document.getElementById('textSearch').value
+        if (textSearch === '') window.location.href = '/page/articles/'
+        else window.location.href = `/page/articles/${textSearch}`
+
+    }
+
+</script>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container mt-3">
+    <h3 class="text-center">List of articles</h3>
+    <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
+        <div class="col-md-4 d-flex align-items-center"></div>
+        <div class="nav col-md-4 justify-content-end list-unstyled d-flex">
+            <div class="input-group mb-3">
+                <input id="textSearch" type="text" class="form-control" aria-describedby="search">
+                <button onclick="searchArticles()" class="btn btn-outline-secondary" type="button" id="search">
+                    Search
+                </button>
+            </div>
+        </div>
+    </footer>
+    {% for article in articles %}
+    <a href="/page/article/{{article.id}}" style="text-decoration: none">
+        <div><b>Title:</b> {{ article.title }}</div>
+    </a>
+    <div><b>Content:</b> {{ article.conten[0:50] }}...</div>
+    <div><b>Created:</b> {{ article.created.strftime('%d %B %Y') }}</div>
+    <hr/>
+    {% endfor %}
+</div>
+
+{% endblock %}
+
