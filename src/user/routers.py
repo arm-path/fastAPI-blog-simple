@@ -4,6 +4,7 @@ from sqlalchemy import select, insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database import get_async_session
+from src.env import SECRET_EMAIL_CONFIRMATION
 from src.user.authentication import auth_backend
 from src.user.manager import get_user_manager
 from src.user.models import Role
@@ -51,7 +52,7 @@ async def create_role(role: RoleCreate, session: AsyncSession = Depends(get_asyn
 
 @router.get('/activate/{token}/', tags=["auth"])
 async def activate_user(token: str, session: AsyncSession = Depends(get_async_session)):
-    message = token_decode(token)
+    message = token_decode(token, SECRET_EMAIL_CONFIRMATION)
 
     if message['status'] == 401:
         raise HTTPException(status_code=401, detail=message)

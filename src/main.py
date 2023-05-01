@@ -11,6 +11,7 @@ from fastapi.staticfiles import StaticFiles
 from src.user.routers import router as user_router
 from src.article.routers import router as article_router
 from src.sample_pages.routers import router as page_router
+from src.comment.routers import router as comment_router
 
 app = FastAPI()
 app.mount('/static', StaticFiles(directory='src/static/'), name='static')
@@ -25,10 +26,11 @@ async def index():
 
 app.include_router(user_router, prefix='/user')
 app.include_router(page_router, prefix='/page')
+app.include_router(comment_router, prefix='/comment')
 app.include_router(article_router)
 
 origins = [
-    'http://localhost',
+    'http://localhost:8000',
     'http://localhost:3030'
 ]
 

@@ -26,9 +26,9 @@ def token_encode(user):
     return token
 
 
-def token_decode(token):
+def token_decode(token, secret):
     try:
-        token = jwt.decode(token, SECRET_EMAIL_CONFIRMATION, algorithms="HS256")
+        token = jwt.decode(token, secret, algorithms="HS256")
         answer_decode = {'status': 200, 'token': [token, ]}
     except ExpiredSignatureError:
         answer_decode = {'status': 401, 'message': 'Token expired.'}
