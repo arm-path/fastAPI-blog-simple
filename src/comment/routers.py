@@ -1,6 +1,6 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
-from src.comment.utils import get_user_websocket
+from src.comment.utils import get_user_websocket, get_article_websocket
 
 router = APIRouter()
 
@@ -16,27 +16,34 @@ class ConnectionManager:
     def disconnect(self, websocket: WebSocket):
         self.active_connections.remove(websocket)
 
-    async def send_personal_message(self, message: str, websocket: WebSocket):
-        await websocket.send_text(message)
+    async def send_personal_message(self, data: dict, websocket: WebSocket):
+        await websocket.send_json(data)
 
-    async def broadcast(self, message: str):
+    async def broadcast(self, data: dict):
         for connections in self.active_connections:
-            await connections.send_text(message)
+            await connections.send_json(data)
 
 
 manager = ConnectionManager()
 
 
-@router.websocket('/ws/{identifier}')
-async def websocket_endpoint(websocket: WebSocket, identifier: int):
-    user = await get_user_websocket(websocket)
-    print(user)
+@router.websocket('/ws/{identifier}/{id_article}')
+async def websocket_endpoint(websocket: WebSocket, identifier: int, id_article):
     await manager.connect(websocket)
     try:
         while True:
-            data = await websocket.receive_text()
-            await manager.send_personal_message(f'You wrote: {data}', websocket)
-            await manager.broadcast(f"Session №{identifier}")
+            user = await get_user_websocket(websocket)
+            article = await get_article_websocket(id_article)
+            text = await websocket.receive_text()
+            if user['status'] != 200:
+                await manager.send_personal_message(
+                    {'status': 403, 'error': 'You are not authorized!'}, websocket)
+            if article['status'] != 200:
+                await manager.send_personal_message(
+                    {'status': 404, 'error': 'Failed to get article for comment'}, websocket)
+            if user['status'] == 200 and article['status'] == 200:
+                user_model = user['data'][0]['user']
+                article_model = article['data'][0]['article']
+                await manager.broadcast({'status': 200, 'user': user_model.email, 'text': text})
     except WebSocketDisconnect:
         manager.disconnect(websocket)
-        await manager.broadcast(f"Session №{identifier} closed")

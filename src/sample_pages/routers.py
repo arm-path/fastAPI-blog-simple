@@ -23,8 +23,3 @@ def get_detail_article(request: Request, article=Depends(get_article)):
 @router.get('/articles/{search}', tags=['sample pages'])
 def get_search_article(request: Request, articles=Depends(search_articles)):
     return template.TemplateResponse('article_list.html', {'request': request, 'articles': articles['articles']})
-
-
-@router.get('/comments/')
-async def chat(request: Request, user: User = Depends(current_active_user)):
-    return template.TemplateResponse('comment.html', {'request': request, 'user': user})
