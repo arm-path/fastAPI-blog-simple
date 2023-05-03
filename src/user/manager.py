@@ -15,7 +15,7 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, id]):
 
     async def on_after_register(self, user: User, request: Optional[Request] = None):
         token = token_encode(user)
-        # send_massage.delay(user.email, token)
+        send_massage.delay(user.email, token)
         print(f"User {user.id} has registered.")
 
     async def on_after_forgot_password(
