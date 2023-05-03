@@ -1,12 +1,12 @@
 from fastapi import WebSocket
-from sqlalchemy import select
+from sqlalchemy import select, insert
 from sqlalchemy.exc import NoResultFound
 
 from src.database import async_session_maker
 from src.env import SECRET_USER_AUTHENTICATION
 from src.user.models import User
 from src.user.utils import token_decode
-from src.article.models import Article
+from src.article.models import Article, Comment
 
 
 async def get_user_websocket(websocket: WebSocket):
@@ -35,3 +35,12 @@ async def get_article_websocket(id_article):
         except NoResultFound:
             return {'status': 500, 'data': [{'error': 'The request returned an empty result'}]}
         return {'status': 200, 'data': [{'article': article}]}
+
+
+async def insert_comment_db(user, article, text):
+    async with async_session_maker() as session:
+        comment = await session.execute(
+            insert(Comment).values(user_id=user.id, article_id=article.id, text=text).returning(Comment)
+        )
+        await session.commit()
+        return comment.scalars().one()

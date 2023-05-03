@@ -2,11 +2,12 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import insert, select
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError, NoResultFound
+from sqlalchemy.orm import selectinload, joinedload, load_only
 from asyncpg.exceptions import UniqueViolationError, ForeignKeyViolationError
 
 from src.database import get_async_session
 from src.article.schemas import ArticleCreate
-from src.article.models import Article
+from src.article.models import Article, Comment
 from src.user.models import User
 from src.user.routers import current_active_user
 
@@ -38,11 +39,19 @@ async def create_article(article: ArticleCreate, session: AsyncSession = Depends
 
 @router.get('/get/{id}')
 async def get_article(id: int, session: AsyncSession = Depends(get_async_session)):
-    article = await session.execute(select(Article).where(Article.id == id))
+    article = await session.execute(
+        select(Article)
+            .options(
+            selectinload(Article.comments).load_only(Comment.text).
+                joinedload(Comment.user).load_only(User.email, User.first_name, User.last_name))
+            .options(joinedload(Article.user).load_only(User.email))
+            .options(load_only(Article.id, Article.title, Article.conten))
+            .filter(Article.id == id))
     try:
         article = article.scalars().one()
     except NoResultFound:
         raise HTTPException(status_code=404, detail={'status': 404, 'article': []})
+    print(article)
     return {'status': 200, 'article': article}
 
 

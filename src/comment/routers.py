@@ -1,6 +1,6 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
-from src.comment.utils import get_user_websocket, get_article_websocket
+from src.comment.utils import get_user_websocket, get_article_websocket, insert_comment_db
 
 router = APIRouter()
 
@@ -44,6 +44,7 @@ async def websocket_endpoint(websocket: WebSocket, identifier: int, id_article):
             if user['status'] == 200 and article['status'] == 200:
                 user_model = user['data'][0]['user']
                 article_model = article['data'][0]['article']
-                await manager.broadcast({'status': 200, 'user': user_model.email, 'text': text})
+                comment = await insert_comment_db(user_model, article_model, text)
+                await manager.broadcast({'status': 200, 'id': comment.id, 'user': user_model.email, 'text': text})
     except WebSocketDisconnect:
         manager.disconnect(websocket)

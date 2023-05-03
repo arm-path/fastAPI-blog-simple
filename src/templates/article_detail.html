@@ -20,9 +20,19 @@
                 </form>
             </div>
         </div>
-        <ul id='messages'>
+        <ul id='messages'></ul>
 
-        </ul>
+        <div>
+            <ul>
+                {% for comment in article.comments %}
+                <li>
+                    <b>User: </b> {{ comment.user.email }}<br/>
+                    <b>Comment: </b> {{ comment.text }} <br/>
+                    <hr/>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
     </div>
 
 
@@ -44,7 +54,7 @@
                     <b>Comment: </b> ${data.text} <br/>
                     <hr/>
                 `
-            }else{
+            } else {
                 let error = document.createTextNode(data.error)
                 message.appendChild(error)
             }
